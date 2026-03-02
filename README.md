@@ -34,3 +34,11 @@ samples, guidance on mobile development, and a full API reference.
         - Offline
     - Ajouter un timer de surveillance
     - Préparer le terrain pour une architecture en Bloc
+
+### Résultats :
+    - Chaque device apparaît une seule fois
+    - A l'arrêt du simulateur : 
+        => Le statut passe Online → Degraded → Offline
+    - Si on le relance :
+        => repasse immédiatement Online
+    Important : L’app ne doit pas crasher.
