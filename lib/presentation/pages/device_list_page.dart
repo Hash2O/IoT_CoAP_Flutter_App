@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iot_coap_app/presentation/pages/device_detail_page.dart';
 
 import '../bloc/device_bloc.dart';
 import '../bloc/device_state.dart';
@@ -30,6 +31,17 @@ class DeviceListPage extends StatelessWidget {
                   "IP: ${device.ip}\n"
                   "Status: ${device.status.name}",
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DeviceDetailPage(
+                        ip: device.ip,
+                        name: device.name,
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );
