@@ -68,25 +68,25 @@ samples, guidance on mobile development, and a full API reference.
 Objectifs : séparation data / logique / UI, gestion propre des streams, gestion propre des timers, aucune logique réseau dans l’UI
 
 ### Evolution de l'arborescence :
-lib/
-│
-├── data/
-│   └── services/
-│       └── device_discovery_service.dart
-│
-├── domain/
-│   └── models/
-│       └── device.dart
-│
-├── presentation/
-│   ├── bloc/
-│   │   ├── device_bloc.dart
-│   │   ├── device_event.dart
-│   │   └── device_state.dart
-│   │
-│   └── pages/
-│       └── device_list_page.dart
-│
-└── main.dart
+    lib/
+    │
+    ├── data/
+    │   └── services/
+    │       └── device_discovery_service.dart
+    │
+    ├── domain/
+    │   └── models/
+    │       └── device.dart
+    │
+    ├── presentation/
+    │   ├── bloc/
+    │   │   ├── device_bloc.dart
+    │   │   ├── device_event.dart
+    │   │   └── device_state.dart
+    │   │
+    │   └── pages/
+    │       └── device_list_page.dart
+    │
+    └── main.dart
 
 => Architecture IoT propre, véritable séparation des couches, système extensible. 
