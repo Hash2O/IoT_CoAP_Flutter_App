@@ -17,7 +17,7 @@ samples, guidance on mobile development, and a full API reference.
 # IoT_CoAP_Flutter_App
 
 ## Choix : 
-### MMulticast UDP / CoAP announce
+### Multicast UDP / CoAP announce
 
 ### Arguments : 
     - Processus en temps réel
