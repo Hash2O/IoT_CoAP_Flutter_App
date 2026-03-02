@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:coap/coap.dart';
 
+// Test connexion réseau 
 class CoapTestService {
 
   Future<String> fetchHealth(String ip) async {

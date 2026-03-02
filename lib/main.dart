@@ -30,6 +30,7 @@ class DiscoveryTestPage extends StatefulWidget {
 class _DiscoveryTestPageState extends State<DiscoveryTestPage> {
   final DeviceDiscoveryService discovery = DeviceDiscoveryService();
 
+  // Déduplication + gestion état (version sans Bloc)
   StreamSubscription? _subscription;
   Timer? _statusTimer;
 
@@ -59,6 +60,7 @@ class _DiscoveryTestPageState extends State<DiscoveryTestPage> {
     _startStatusMonitoring();
   }
 
+  // Timer de surveillance
   void _startStatusMonitoring() {
     _statusTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       final now = DateTime.now();
@@ -89,7 +91,7 @@ class _DiscoveryTestPageState extends State<DiscoveryTestPage> {
 
   @override
   Widget build(BuildContext context) {
-    final devices = _devices.values.toList();
+    final devices = _devices.values.toList(); // Affichage ListView
 
     return Scaffold(
       appBar: AppBar(

@@ -1,3 +1,5 @@
+// Modèle Device propre
+
 enum ConnectionStatus {
   unknown,
   online,

@@ -15,3 +15,22 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 # IoT_CoAP_Flutter_App
+
+## Test Découverte :
+- Lance le service multicast au démarrage
+- Écoute les annonces
+- Affiche chaque device reçu
+- Nettoie proprement socket + stream à la fermeture
+
+## Gestion intelligente des devices
+
+### Objectifs : 
+    - Dédupliquer les devices
+    - Ajouter lastSeen
+    - Implémenter les statuts demandés par le cahier des charges:
+        - Unknown
+        - Online
+        - Degraded
+        - Offline
+    - Ajouter un timer de surveillance
+    - Préparer le terrain pour une architecture en Bloc
