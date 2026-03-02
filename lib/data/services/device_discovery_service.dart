@@ -13,6 +13,7 @@ class DeviceDiscoveryService {
   Stream<Map<String, dynamic>> get deviceStream =>
       _deviceController.stream;
 
+  // Gestion propre du socket
   Future<void> start() async {
     _socket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4,
@@ -29,6 +30,7 @@ class DeviceDiscoveryService {
       if (event == RawSocketEvent.read) {
         final datagram = _socket!.receive();
 
+        // try/catch pour éviter le crash de l'app
         if (datagram != null) {
           try {
             final message = utf8.decode(datagram.data);
@@ -44,6 +46,7 @@ class DeviceDiscoveryService {
     });
   }
 
+  // stop() pour libèrer les ressources
   void stop() {
     _socket?.close();
     _deviceController.close();

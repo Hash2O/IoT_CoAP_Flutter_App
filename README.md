@@ -16,6 +16,22 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 # IoT_CoAP_Flutter_App
 
+## Choix : 
+### MMulticast UDP / CoAP announce
+
+### Arguments : 
+    - Processus en temps réel
+    - Pas besoin de scanner l'ensemble du réseau
+    - Plus proche d’une situation réelle sur un système IoT
+
+### En complément des données envoyées par le device simulator :
+    - Écouter en multicast UDP
+    - Parser au format JSON
+    - Mettre à jour un Map<device_id, Device>
+    - Timer de vérification lastSeen
+
+Met à jour statut (Online / Degraded / Offline)
+
 ## Test Découverte :
 - Lance le service multicast au démarrage
 - Écoute les annonces
