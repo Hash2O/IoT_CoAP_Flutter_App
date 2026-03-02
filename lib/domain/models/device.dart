@@ -1,5 +1,7 @@
 // Modèle Device propre
 
+// But compteur échecs : 1 échec => degraded, 3 échecs => offline
+
 enum ConnectionStatus {
   unknown,
   online,
@@ -13,6 +15,7 @@ class Device {
   final String ip;
   final DateTime lastSeen;
   final ConnectionStatus status;
+  final int healthFailures; // Ajout compteur d'échecs
 
   Device({
     required this.deviceId,
@@ -20,6 +23,7 @@ class Device {
     required this.ip,
     required this.lastSeen,
     required this.status,
+    required this.healthFailures,
   });
 
   factory Device.fromAnnounce(Map<String, dynamic> json) {
@@ -29,6 +33,7 @@ class Device {
       ip: json['ip'],
       lastSeen: DateTime.now(),
       status: ConnectionStatus.online,
+      healthFailures: 0,
     );
   }
 
@@ -38,6 +43,7 @@ class Device {
     String? ip,
     DateTime? lastSeen,
     ConnectionStatus? status,
+    int? healthFailures,
   }) {
     return Device(
       deviceId: deviceId ?? this.deviceId,
@@ -45,6 +51,7 @@ class Device {
       ip: ip ?? this.ip,
       lastSeen: lastSeen ?? this.lastSeen,
       status: status ?? this.status,
+      healthFailures: healthFailures ?? this.healthFailures,
     );
   }
 }

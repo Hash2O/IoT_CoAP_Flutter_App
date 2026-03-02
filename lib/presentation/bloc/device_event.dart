@@ -7,3 +7,4 @@ class DeviceAnnounced extends DeviceEvent {
 }
 
 class DeviceStatusCheckRequested extends DeviceEvent {}
+class DeviceHealthCheckRequested extends DeviceEvent {}

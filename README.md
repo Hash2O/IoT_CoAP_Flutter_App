@@ -64,7 +64,8 @@ samples, guidance on mobile development, and a full API reference.
     - Offline: last announce > 10 seconds
 
 ## Version 2 - Refactorisation de la version 1
-=> UI  → Bloc → Services → Modèles
+=> UI → Bloc → Services → Modèles
+
 Objectifs : séparation data / logique / UI, gestion propre des streams, gestion propre des timers, aucune logique réseau dans l’UI
 
 ### Evolution de l'arborescence :
@@ -90,3 +91,14 @@ Objectifs : séparation data / logique / UI, gestion propre des streams, gestion
     └── main.dart
 
 => Architecture IoT propre, véritable séparation des couches, système extensible. 
+
+## Statut des devices
+Le statut de chaque device est déterminé par un ping périodique de type CoAP /health
+
+### Evolution des règles de connexion : 
+    - Multicast sert uniquement à faire apparaître le device
+    - 0 échec → Online
+    - 1–2 échecs → Degraded
+    - 3+ échecs → Offline
+
+### Modèle : Discovery layer + Health monitoring layer + Failure tolerance

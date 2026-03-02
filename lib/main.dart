@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iot_coap_app/data/services/coap_health_service.dart';
 
 import 'data/services/device_discovery_service.dart';
 import 'presentation/bloc/device_bloc.dart';
@@ -15,7 +16,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => DeviceBloc(DeviceDiscoveryService()),
+      create: (_) => DeviceBloc(
+        DeviceDiscoveryService(),
+        CoapHealthService(),
+      ),
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: DeviceListPage(),
