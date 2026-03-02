@@ -46,44 +46,68 @@ class DeviceDetailPage extends StatelessWidget {
   }
 }
 
-class _TemperatureView extends StatelessWidget {
+class _TemperatureView extends StatefulWidget {
   final double temperature;
 
   const _TemperatureView({required this.temperature});
 
   @override
-  Widget build(BuildContext context) {
-    final controller =
-        TextEditingController(text: temperature.toString());
+  State<_TemperatureView> createState() => _TemperatureViewState();
+}
 
+class _TemperatureViewState extends State<_TemperatureView> {
+  late double _currentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.temperature;
+  }
+
+  @override
+  void didUpdateWidget(covariant _TemperatureView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _currentValue = widget.temperature;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            "Current temperature: $temperature °C",
-            style: const TextStyle(fontSize: 20),
+            "${_currentValue.toStringAsFixed(1)} °C",
+            style: const TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 20),
-          TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration:
-                const InputDecoration(labelText: "New temperature"),
+          const SizedBox(height: 30),
+
+          Slider(
+            value: _currentValue,
+            min: 10,
+            max: 35,
+            divisions: 50,
+            label: _currentValue.toStringAsFixed(1),
+            onChanged: (value) {
+              setState(() {
+                _currentValue = value;
+              });
+            },
           ),
+
           const SizedBox(height: 20),
+
           ElevatedButton(
             onPressed: () {
-              final value =
-                  double.tryParse(controller.text);
-
-              if (value != null) {
-                context.read<DeviceDetailBloc>().add(
-                      UpdateTemperatureRequested(value),
-                    );
-              }
+              context.read<DeviceDetailBloc>().add(
+                    UpdateTemperatureRequested(_currentValue),
+                  );
             },
-            child: const Text("Update"),
+            child: const Text("Apply"),
           ),
         ],
       ),

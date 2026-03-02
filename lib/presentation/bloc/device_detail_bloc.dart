@@ -1,29 +1,34 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../data/services/coap_temperature_service.dart';
 
-///***********************
-// Events
-///***********************
+/*
+Objectifs du script amélioré : 
+- Un seul timer
+- Annulation propre
+- Pas de fuite mémoire
+- Refresh automatique
+- Reload après PUT
+*/
 
+/// EVENTS
 abstract class DeviceDetailEvent {}
 
 class LoadTemperature extends DeviceDetailEvent {}
 
 class UpdateTemperatureRequested extends DeviceDetailEvent {
   final double newValue;
-
   UpdateTemperatureRequested(this.newValue);
 }
-///***********************
-// State
-/// **********************
 
+/// STATE
 class DeviceDetailState {
   final double? temperature;
   final bool loading;
   final String? error;
 
-  DeviceDetailState({
+  const DeviceDetailState({
     this.temperature,
     this.loading = false,
     this.error,
@@ -42,19 +47,24 @@ class DeviceDetailState {
   }
 }
 
-///***********************
-// Bloc
-///***********************
-
+/// BLOC
 class DeviceDetailBloc
     extends Bloc<DeviceDetailEvent, DeviceDetailState> {
   final CoapTemperatureService service;
   final String ip;
 
+  Timer? _autoRefreshTimer;
+
   DeviceDetailBloc(this.service, this.ip)
-      : super(DeviceDetailState()) {
+      : super(const DeviceDetailState()) {
     on<LoadTemperature>(_onLoadTemperature);
     on<UpdateTemperatureRequested>(_onUpdateTemperature);
+
+    // 🔥 Auto-refresh toutes les 5 secondes
+    _autoRefreshTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => add(LoadTemperature()),
+    );
   }
 
   Future<void> _onLoadTemperature(
@@ -67,7 +77,7 @@ class DeviceDetailBloc
     if (temp == null) {
       emit(state.copyWith(
         loading: false,
-        error: "Failed to load temperature",
+        error: "Unable to load temperature",
       ));
     } else {
       emit(state.copyWith(
@@ -88,10 +98,17 @@ class DeviceDetailBloc
     if (!success) {
       emit(state.copyWith(
         loading: false,
-        error: "Failed to update temperature",
+        error: "Update failed",
       ));
     } else {
+      // Recharge immédiatement après modification
       add(LoadTemperature());
     }
+  }
+
+  @override
+  Future<void> close() {
+    _autoRefreshTimer?.cancel(); // ✅ Important !
+    return super.close();
   }
 }

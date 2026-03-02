@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:iot_coap_app/presentation/pages/device_detail_page.dart';
 
 import '../bloc/device_bloc.dart';
 import '../bloc/device_state.dart';
+import '../pages/device_detail_page.dart';
+import '../../domain/models/device.dart';
 
 class DeviceListPage extends StatelessWidget {
   const DeviceListPage({super.key});
@@ -11,13 +12,17 @@ class DeviceListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Devices")),
+      appBar: AppBar(
+        title: const Text("Discovered Devices"),
+      ),
       body: BlocBuilder<DeviceBloc, DeviceState>(
         builder: (context, state) {
           final devices = state.devices.values.toList();
 
           if (devices.isEmpty) {
-            return const Center(child: Text("No devices found"));
+            return const Center(
+              child: Text("No devices discovered"),
+            );
           }
 
           return ListView.builder(
@@ -27,10 +32,8 @@ class DeviceListPage extends StatelessWidget {
 
               return ListTile(
                 title: Text(device.name),
-                subtitle: Text(
-                  "IP: ${device.ip}\n"
-                  "Status: ${device.status.name}",
-                ),
+                subtitle: Text(device.ip),
+                trailing: _buildStatusBadge(device.status),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -46,6 +49,34 @@ class DeviceListPage extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(ConnectionStatus status) {
+    Color color;
+
+    switch (status) {
+      case ConnectionStatus.online:
+        color = Colors.green;
+        break;
+      case ConnectionStatus.degraded:
+        color = Colors.orange;
+        break;
+      case ConnectionStatus.offline:
+        color = Colors.red;
+        break;
+      case ConnectionStatus.unknown:
+        color = Colors.black;
+        break;
+    }
+
+    return Container(
+      width: 14,
+      height: 14,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
       ),
     );
   }
