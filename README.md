@@ -42,3 +42,8 @@ samples, guidance on mobile development, and a full API reference.
     - Si on le relance :
         => repasse immédiatement Online
     Important : L’app ne doit pas crasher.
+
+### Règles basiques de connexion :
+    - Online: last announce <= 5 seconds
+    - Degraded: 5 < last announce <= 10 seconds
+    - Offline: last announce > 10 seconds
