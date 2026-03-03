@@ -27,9 +27,9 @@ class DeviceDetailPage extends StatelessWidget {
         appBar: AppBar(title: Text(name)),
         body: BlocBuilder<DeviceDetailBloc, DeviceDetailState>(
           builder: (context, state) {
-
             return _TemperatureView(
               temperature: state.temperature,
+              lastUpdate: state.lastUpdate,
               ip: ip,
               port: port,
               loading: state.loading,
@@ -48,6 +48,7 @@ class _TemperatureView extends StatefulWidget {
   final int port;
   final bool loading;
   final String? error;
+  final DateTime? lastUpdate;
 
   const _TemperatureView({
     required this.temperature,
@@ -55,6 +56,7 @@ class _TemperatureView extends StatefulWidget {
     required this.port,
     required this.loading,
     required this.error,
+    required this.lastUpdate,
   });
 
   @override
@@ -103,7 +105,20 @@ class _TemperatureViewState extends State<_TemperatureView> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
+          const SizedBox(height: 8),
+
+          if (widget.lastUpdate != null)
+            Text(
+              "Updated at: ${_formatTime(widget.lastUpdate!)}",
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+
           const SizedBox(height: 30),
+
           Slider(
             value: _currentValue,
             min: 10,
@@ -156,5 +171,11 @@ class _TemperatureViewState extends State<_TemperatureView> {
       ),
     );
   }
+
+  String _formatTime(DateTime date) {
+  return "${date.hour.toString().padLeft(2, '0')}:"
+         "${date.minute.toString().padLeft(2, '0')}:"
+         "${date.second.toString().padLeft(2, '0')}";
+}
 
 }

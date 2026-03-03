@@ -27,24 +27,38 @@ class DeviceDetailState {
   final double? temperature;
   final bool loading;
   final String? error;
+  final DateTime? lastUpdate;
 
   const DeviceDetailState({
     this.temperature,
     this.loading = false,
     this.error,
+    this.lastUpdate,
   });
 
   DeviceDetailState copyWith({
-    double? temperature,
-    bool? loading,
-    String? error,
+  bool? loading,
+  String? error,
+  double? temperature,
+  DateTime? lastUpdate,
   }) {
     return DeviceDetailState(
-      temperature: temperature ?? this.temperature,
       loading: loading ?? this.loading,
       error: error,
+      temperature: temperature ?? this.temperature,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
     );
   }
+}
+
+class TemperatureResponse {
+  final double value;
+  final DateTime timestamp;
+
+  TemperatureResponse({
+    required this.value,
+    required this.timestamp,
+  });
 }
 
 /// BLOC
@@ -61,7 +75,7 @@ class DeviceDetailBloc
     on<LoadTemperature>(_onLoadTemperature);
     on<UpdateTemperatureRequested>(_onUpdateTemperature);
 
-    // Auto-refresh toutes les 5 secondes
+    //Auto-refresh toutes les 5 secondes
     _autoRefreshTimer = Timer.periodic(
       const Duration(seconds: 5),
       (_) => add(LoadTemperature()),
@@ -69,13 +83,14 @@ class DeviceDetailBloc
   }
 
   Future<void> _onLoadTemperature(
-      LoadTemperature event,
-      Emitter<DeviceDetailState> emit) async {
+    LoadTemperature event,
+    Emitter<DeviceDetailState> emit) async {
+
     emit(state.copyWith(loading: true, error: null));
 
-    final temp = await service.getTemperature(ip, port);
+    final response = await service.getTemperature(ip, port);
 
-    if (temp == null) {
+    if (response == null) {
       emit(state.copyWith(
         loading: false,
         error: "Unable to load temperature",
@@ -83,7 +98,8 @@ class DeviceDetailBloc
     } else {
       emit(state.copyWith(
         loading: false,
-        temperature: temp,
+        temperature: response.value,
+        lastUpdate: response.timestamp,
       ));
     }
   }
@@ -93,17 +109,20 @@ class DeviceDetailBloc
       Emitter<DeviceDetailState> emit) async {
     emit(state.copyWith(loading: true, error: null));
 
-    final success =
-        await service.setTemperature(ip, port, event.newValue);
+    final response =
+    await service.setTemperature(ip, port, event.newValue);
 
-    if (!success) {
+    if (response == null) {
       emit(state.copyWith(
         loading: false,
         error: "Update failed",
       ));
     } else {
-      // Recharge immédiatement après modification
-      add(LoadTemperature());
+      emit(state.copyWith(
+        loading: false,
+        temperature: response.value,
+        lastUpdate: response.timestamp,
+      ));
     }
   }
 
