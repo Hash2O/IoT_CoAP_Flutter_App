@@ -116,3 +116,8 @@ Le statut de chaque device est déterminé par un ping périodique de type CoAP 
     - Orange → Degraded
     - Rouge → Offline
     - Noir → Inconnu
+
+### Affichage des devices (DeviceListPage)
+    Chaque device est identifié par un UUID unique généré dynamiquement si non fourni.
+    Le timestamp lastSeen est mis à jour à chaque annonce multicast.
+    Le statut de connexion est déterminé via ping CoAP /health avec dégradation progressive.

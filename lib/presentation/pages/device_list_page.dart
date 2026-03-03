@@ -30,22 +30,42 @@ class DeviceListPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final device = devices[index];
 
-              return ListTile(
-                title: Text(device.name),
-                subtitle: Text(device.ip),
-                trailing: _buildStatusBadge(device.status),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DeviceDetailPage(
-                        ip: device.ip,
-                        port: device.port,
-                        name: device.name,
+              return Card(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
+                child: ListTile(
+                  title: Text(
+                    device.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text("IP: ${device.ip}:${device.port}"),
+                      Text("ID: ${device.deviceId}"),
+                      Text(
+                        "Last seen: ${_formatDate(device.lastSeen)}",
                       ),
-                    ),
-                  );
-                },
+                    ],
+                  ),
+                  trailing:
+                      _buildStatusBadge(device.status),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            DeviceDetailPage(
+                          ip: device.ip,
+                          port: device.port,
+                          name: device.name,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );
@@ -68,17 +88,34 @@ class DeviceListPage extends StatelessWidget {
         color = Colors.red;
         break;
       case ConnectionStatus.unknown:
+      default:
         color = Colors.black;
         break;
     }
 
-    return Container(
-      width: 14,
-      height: 14,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          status.name,
+          style: const TextStyle(fontSize: 10),
+        ),
+      ],
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.hour.toString().padLeft(2, '0')}:"
+        "${date.minute.toString().padLeft(2, '0')}:"
+        "${date.second.toString().padLeft(2, '0')}";
   }
 }
