@@ -59,12 +59,13 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
   ) async {
     final devices = Map<String, Device>.from(state.devices);
 
-    final keys = devices.keys.toList(); // éviter modification concurrente
+    // Ici, éviter les modifications concurrentes
+    final keys = devices.keys.toList(); 
 
     for (final key in keys) {
       final device = devices[key]!;
 
-      final success = await healthService.ping(device.ip);
+      final success = await healthService.ping(device.ip, device.port);
 
       if (success) {
         devices[key] = device.copyWith(

@@ -95,6 +95,14 @@ Objectifs : séparation data / logique / UI, gestion propre des streams, gestion
 ## Statut des devices
 Le statut de chaque device est déterminé par un ping périodique de type CoAP /health
 
+## Version 3 : 
+    - Multicast discovery
+    - Health monitoring robuste
+    - Architecture Bloc
+    - Écran détail fonctionnel
+    - Lecture / écriture CoAP
+    - Gestion réseau propre
+
 ### Evolution des règles de connexion : 
     - Multicast sert uniquement à faire apparaître le device
     - 0 échec → Online
@@ -102,3 +110,9 @@ Le statut de chaque device est déterminé par un ping périodique de type CoAP 
     - 3+ échecs → Offline
 
 ### Modèle : Discovery layer + Health monitoring layer + Failure tolerance
+
+### UI : 
+    - Vert → Online
+    - Orange → Degraded
+    - Rouge → Offline
+    - Noir → Inconnu

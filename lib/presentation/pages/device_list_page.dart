@@ -40,6 +40,7 @@ class DeviceListPage extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => DeviceDetailPage(
                         ip: device.ip,
+                        port: device.port,
                         name: device.name,
                       ),
                     ),

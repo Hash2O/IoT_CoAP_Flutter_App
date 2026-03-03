@@ -6,10 +6,12 @@ import 'package:coap/coap.dart';
 // Important : Aucune exception propagée : l'app ne crashe pas
 
 class CoapHealthService {
-  Future<bool> ping(String ip) async {
+  Future<bool> ping(String ip, int port) async {
     try {
-      final baseUri = Uri.parse("coap://$ip:5683");
-      final client = CoapClient(baseUri);
+      // final baseUri = Uri.parse("coap://$ip:$port");
+      // final client = CoapClient(baseUri);
+
+      final client = CoapClient(Uri.parse("coap://$ip:$port"));
 
       final response = await client
           .get(Uri(path: "/health"))

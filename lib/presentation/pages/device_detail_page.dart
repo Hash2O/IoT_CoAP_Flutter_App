@@ -7,18 +7,20 @@ import '../bloc/device_detail_bloc.dart';
 class DeviceDetailPage extends StatelessWidget {
   final String ip;
   final String name;
+  final int port;
 
   const DeviceDetailPage({
     super.key,
     required this.ip,
     required this.name,
+    required this.port,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          DeviceDetailBloc(CoapTemperatureService(), ip)
+          DeviceDetailBloc(CoapTemperatureService(), ip, port)
             ..add(LoadTemperature()),
       child: Scaffold(
         appBar: AppBar(title: Text(name)),

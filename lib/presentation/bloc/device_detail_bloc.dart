@@ -52,15 +52,16 @@ class DeviceDetailBloc
     extends Bloc<DeviceDetailEvent, DeviceDetailState> {
   final CoapTemperatureService service;
   final String ip;
+  final int port;
 
   Timer? _autoRefreshTimer;
 
-  DeviceDetailBloc(this.service, this.ip)
+  DeviceDetailBloc(this.service, this.ip, this.port)
       : super(const DeviceDetailState()) {
     on<LoadTemperature>(_onLoadTemperature);
     on<UpdateTemperatureRequested>(_onUpdateTemperature);
 
-    // 🔥 Auto-refresh toutes les 5 secondes
+    // Auto-refresh toutes les 5 secondes
     _autoRefreshTimer = Timer.periodic(
       const Duration(seconds: 5),
       (_) => add(LoadTemperature()),
@@ -72,7 +73,7 @@ class DeviceDetailBloc
       Emitter<DeviceDetailState> emit) async {
     emit(state.copyWith(loading: true, error: null));
 
-    final temp = await service.getTemperature(ip);
+    final temp = await service.getTemperature(ip, port);
 
     if (temp == null) {
       emit(state.copyWith(
@@ -93,7 +94,7 @@ class DeviceDetailBloc
     emit(state.copyWith(loading: true, error: null));
 
     final success =
-        await service.setTemperature(ip, event.newValue);
+        await service.setTemperature(ip, port, event.newValue);
 
     if (!success) {
       emit(state.copyWith(
@@ -106,9 +107,10 @@ class DeviceDetailBloc
     }
   }
 
+  // Fermeture et libération des ressources
   @override
   Future<void> close() {
-    _autoRefreshTimer?.cancel(); // ✅ Important !
+    _autoRefreshTimer?.cancel(); 
     return super.close();
   }
 }

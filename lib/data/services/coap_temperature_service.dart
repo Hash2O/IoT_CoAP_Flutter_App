@@ -2,15 +2,17 @@ import 'dart:convert';
 import 'package:coap/coap.dart';
 
 class CoapTemperatureService {
-  Future<double?> getTemperature(String ip) async {
+  Future<double?> getTemperature(String ip, int port) async {
     try {
-      final client = CoapClient(Uri.parse("coap://$ip:5683"));
+      final client = CoapClient(Uri.parse("coap://$ip:$port"));
 
       final response = await client
           .get(Uri(path: "/temperature"))
           .timeout(const Duration(seconds: 2));
 
       client.close();
+
+      if (response.payload == null) return null;
 
       final decoded = utf8.decode(response.payload);
       final json = jsonDecode(decoded);
@@ -21,9 +23,9 @@ class CoapTemperatureService {
     }
   }
 
-  Future<bool> setTemperature(String ip, double value) async {
+  Future<bool> setTemperature(String ip, int port, double value) async {
     try {
-      final client = CoapClient(Uri.parse("coap://$ip:5683"));
+      final client = CoapClient(Uri.parse("coap://$ip:$port"));
 
       final payload = jsonEncode({"temperature": value});
 
