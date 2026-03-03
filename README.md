@@ -121,3 +121,7 @@ Le statut de chaque device est déterminé par un ping périodique de type CoAP 
     Chaque device est identifié par un UUID unique généré dynamiquement si non fourni.
     Le timestamp lastSeen est mis à jour à chaque annonce multicast.
     Le statut de connexion est déterminé via ping CoAP /health avec dégradation progressive.
+
+### Mode administrateur
+    L’application intègre un mode administrateur permettant de simuler dynamiquement des conditions réseau dégradées via un endpoint CoAP dédié.
+    L’interface d’administration reste accessible même en cas de défaillance réseau, garantissant la capacité de reprise

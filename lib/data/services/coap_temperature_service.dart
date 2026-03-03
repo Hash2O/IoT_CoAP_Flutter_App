@@ -12,8 +12,6 @@ class CoapTemperatureService {
 
       client.close();
 
-      if (response.payload == null) return null;
-
       final decoded = utf8.decode(response.payload);
       final json = jsonDecode(decoded);
 

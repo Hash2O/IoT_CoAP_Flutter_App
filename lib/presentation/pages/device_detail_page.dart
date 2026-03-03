@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iot_coap_app/chaos_panel.dart';
 
 import '../../data/services/coap_temperature_service.dart';
 import '../bloc/device_detail_bloc.dart';
@@ -26,20 +27,13 @@ class DeviceDetailPage extends StatelessWidget {
         appBar: AppBar(title: Text(name)),
         body: BlocBuilder<DeviceDetailBloc, DeviceDetailState>(
           builder: (context, state) {
-            if (state.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (state.error != null) {
-              return Center(child: Text(state.error!));
-            }
-
-            if (state.temperature == null) {
-              return const Center(child: Text("No data"));
-            }
 
             return _TemperatureView(
-              temperature: state.temperature!,
+              temperature: state.temperature,
+              ip: ip,
+              port: port,
+              loading: state.loading,
+              error: state.error,
             );
           },
         ),
@@ -49,9 +43,19 @@ class DeviceDetailPage extends StatelessWidget {
 }
 
 class _TemperatureView extends StatefulWidget {
-  final double temperature;
+  final double? temperature;
+  final String ip;
+  final int port;
+  final bool loading;
+  final String? error;
 
-  const _TemperatureView({required this.temperature});
+  const _TemperatureView({
+    required this.temperature,
+    required this.ip,
+    required this.port,
+    required this.loading,
+    required this.error,
+  });
 
   @override
   State<_TemperatureView> createState() => _TemperatureViewState();
@@ -63,21 +67,34 @@ class _TemperatureViewState extends State<_TemperatureView> {
   @override
   void initState() {
     super.initState();
-    _currentValue = widget.temperature;
+    _currentValue = widget.temperature ?? 22.0;
   }
 
   @override
   void didUpdateWidget(covariant _TemperatureView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _currentValue = widget.temperature;
+
+    if (widget.temperature != null) {
+      _currentValue = widget.temperature!;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+
+    Widget content;
+
+    if (widget.loading) {
+      content = const CircularProgressIndicator();
+    } 
+    else if (widget.error != null) {
+      content = Text(
+        widget.error!,
+        style: const TextStyle(color: Colors.red),
+      );
+    } 
+    else if (widget.temperature != null) {
+      content = Column(
         children: [
           Text(
             "${_currentValue.toStringAsFixed(1)} °C",
@@ -87,32 +104,57 @@ class _TemperatureViewState extends State<_TemperatureView> {
             ),
           ),
           const SizedBox(height: 30),
-
           Slider(
             value: _currentValue,
             min: 10,
             max: 35,
             divisions: 50,
-            label: _currentValue.toStringAsFixed(1),
-            onChanged: (value) {
-              setState(() {
-                _currentValue = value;
-              });
-            },
+            onChanged: widget.error != null // grise le slider en cas d’erreur
+                ? null
+                : (value) {
+                    setState(() => _currentValue = value);
+                  },
           ),
-
-          const SizedBox(height: 20),
-
           ElevatedButton(
             onPressed: () {
               context.read<DeviceDetailBloc>().add(
-                    UpdateTemperatureRequested(_currentValue),
-                  );
+                UpdateTemperatureRequested(_currentValue),
+              );
             },
             child: const Text("Apply"),
+          ),
+        ],
+      );
+    } 
+    else {
+      content = const Text("No data");
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+
+          Expanded(child: Center(child: content)),
+
+          const Divider(),
+
+          ElevatedButton(
+            child: const Text("Mode Admin"),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (_) => ChaosPanel(
+                  ip: widget.ip,
+                  port: widget.port,
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
+
 }
