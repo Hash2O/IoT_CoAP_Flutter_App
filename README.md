@@ -16,8 +16,61 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 # IoT_CoAP_Flutter_App
 
-## Choix : 
-### Multicast UDP / CoAP announce
+## Présentation rapide
+    Une application mobile Flutter permettant :
+        - La découverte des appareils
+        - La consultation de la température
+        - La modification de la température
+        - La visualisation du statut réseau
+        - La simulation d’instabilité réseau (mode Admin)
+    => L’objectif est de proposer une architecture réaliste de supervision IoT capable de gérer des conditions réseau instables.
+
+## Lancer l'application
+    flutter pub get
+    flutter run
+
+### Arborescence de l'application:
+    lib/
+    │
+    ├── data/
+    │   └── services/
+    │       ├── coap_chaos_service.dart
+    │       ├── coap_health_service.dart
+    │       ├── coap_temperature_service.dart
+    │       └── device_discovery_service.dart
+    │
+    ├── domain/
+    │   └── models/
+    │       └── device.dart
+    │
+    ├── presentation/
+    │   ├── bloc/
+    │   │   ├── device_bloc.dart
+    │   │   ├── device_detail_bloc.dart
+    │   │   ├── device_event.dart
+    │   │   └── device_state.dart
+    │   │
+    │   └── pages/
+    │       ├── device_detail_page.dart
+    │       └── device_list_page.dart
+    │
+    ├── chaos_panel.dart
+    ├── coap_test_service.dart
+    └── main.dart
+
+## Choix technique : Multicast UDP / CoAP announce plutôt que scan réseau + requête
+    - Fonctionnellement, les deux approches partent de /.well-known/core, mais :
+        - Scan réseau = émission unicast vers chaque IP possible, coûteux et peu élégant.
+        - Multicast CoAP = une seule requête vers un groupe « All CoAP Nodes », avec réponses des seuls nœuds concernés.
+
+    L’option multicast :
+        - suit les recommandations et mécanismes prévus par CoAP et les RFC CoRE,
+        - réduit le trafic de découverte et se prête mieux à des parcs importants,
+        - s’intègre naturellement avec une future introduction d’un Resource Directory (RD).
+
+    Il convient toutefois de préciser que, dans la pratique, certains environnements WiFi/entreprise filtrent sévèrement l’UDP et/ou le multicast, et qu’il est alors utile de garder :
+        - soit un mode « fallback » (IP fixe connue, ou petit scan),
+        - soit un RD centralisé découvert une fois puis utilisé en unicast.
 
 ### Arguments : 
     - Processus en temps réel
@@ -29,13 +82,13 @@ samples, guidance on mobile development, and a full API reference.
     - Parser au format JSON
     - Mettre à jour un Map<device_id, Device>
     - Timer de vérification lastSeen
-    - Mettre à jour statut (Online / Degraded / Offline)
+    - Mettre à jour statut (Online / Degraded / Offline / Unknown)
 
 ## Test Découverte :
-- Lance le service multicast au démarrage
-- Écoute les annonces
-- Affiche chaque device reçu
-- Nettoie proprement socket + stream à la fermeture
+    - Lance le service multicast au démarrage
+    - Écoute les annonces
+    - Affiche chaque device reçu
+    - Nettoie proprement socket + stream à la fermeture
 
 ## Gestion intelligente des devices
 
@@ -64,36 +117,14 @@ samples, guidance on mobile development, and a full API reference.
     - Offline: last announce > 10 seconds
 
 ## Version 2 - Refactorisation de la version 1
-=> UI → Bloc → Services → Modèles
+    => UI → Bloc → Services → Modèles
 
-Objectifs : séparation data / logique / UI, gestion propre des streams, gestion propre des timers, aucune logique réseau dans l’UI
+    Objectifs : séparation data / logique / UI, gestion propre des streams, gestion propre des timers, aucune logique réseau dans l’UI
 
-### Evolution de l'arborescence :
-    lib/
-    │
-    ├── data/
-    │   └── services/
-    │       └── device_discovery_service.dart
-    │
-    ├── domain/
-    │   └── models/
-    │       └── device.dart
-    │
-    ├── presentation/
-    │   ├── bloc/
-    │   │   ├── device_bloc.dart
-    │   │   ├── device_event.dart
-    │   │   └── device_state.dart
-    │   │
-    │   └── pages/
-    │       └── device_list_page.dart
-    │
-    └── main.dart
-
-=> Architecture IoT propre, véritable séparation des couches, système extensible. 
+    => Architecture IoT propre, véritable séparation des couches, système extensible. 
 
 ## Statut des devices
-Le statut de chaque device est déterminé par un ping périodique de type CoAP /health
+    Le statut de chaque device est déterminé par un ping périodique de type CoAP /health
 
 ## Version 3 : 
     - Multicast discovery
@@ -125,3 +156,12 @@ Le statut de chaque device est déterminé par un ping périodique de type CoAP 
 ### Mode administrateur
     L’application intègre un mode administrateur permettant de simuler dynamiquement des conditions réseau dégradées via un endpoint CoAP dédié.
     L’interface d’administration reste accessible même en cas de défaillance réseau, garantissant la capacité de reprise
+
+### Gestion des erreurs réseau 
+    L’application :
+        - Gère les timeouts
+        - Affiche les erreurs sans crash
+        - Désactive les actions critiques en cas d’erreur
+        - Reste fonctionnelle même en mode offline
+        - Se rétablit automatiquement lorsque le réseau revient
+    De plus, un timer d’auto-refresh permet de resynchroniser l’état.
