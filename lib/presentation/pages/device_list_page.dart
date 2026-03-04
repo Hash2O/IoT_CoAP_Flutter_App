@@ -88,8 +88,7 @@ class DeviceListPage extends StatelessWidget {
         color = Colors.red;
         break;
       case ConnectionStatus.unknown:
-      default:
-        color = Colors.black;
+      color = Colors.black;
         break;
     }
 
