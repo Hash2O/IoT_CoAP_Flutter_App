@@ -77,13 +77,6 @@ samples, guidance on mobile development, and a full API reference.
     - Pas besoin de scanner l'ensemble du réseau
     - Plus proche d’une situation réelle sur un système IoT
 
-### En complément des données envoyées par le device simulator :
-    - Écouter en multicast UDP
-    - Parser au format JSON
-    - Mettre à jour un Map<device_id, Device>
-    - Timer de vérification lastSeen
-    - Mettre à jour statut (Online / Degraded / Offline / Unknown)
-
 ## Test Découverte :
     - Lance le service multicast au démarrage
     - Écoute les annonces
