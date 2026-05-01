@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iot_coap_app/data/services/coap_temperature_service.dart';
 
 import '../../data/services/device_discovery_service.dart';
 import '../../data/services/coap_health_service.dart';
@@ -10,20 +11,29 @@ import 'device_state.dart';
 class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
   final DeviceDiscoveryService discoveryService;
   final CoapHealthService healthService;
+  final CoapTemperatureService temperatureService;
 
   StreamSubscription? _subscription;
   Timer? _healthTimer;
+  Timer? _temperatureTimer;
 
   DeviceBloc(
-    this.discoveryService,
-    this.healthService,
-  ) : super(DeviceState.initial()) {
-    on<DeviceAnnounced>(_onDeviceAnnounced);
-    on<DeviceHealthCheckRequested>(_onHealthCheckRequested);
+  this.discoveryService,
+  this.healthService,
+  this.temperatureService,
+) : super(DeviceState.initial()) {
+  on<DeviceAnnounced>(_onDeviceAnnounced);
+  on<DeviceHealthCheckRequested>(
+    _onHealthCheckRequested,
+  );
+  on<DeviceTemperatureRefreshRequested>(
+    _onTemperatureRefreshRequested,
+  );
 
-    _startDiscovery();
-    _startHealthMonitoring();
-  }
+  _startDiscovery();
+  _startHealthMonitoring();
+  _startTemperatureMonitoring();
+}
 
   void _startDiscovery() async {
     await discoveryService.start();
@@ -40,6 +50,43 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
     );
   }
 
+  void _startTemperatureMonitoring() {
+    _temperatureTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) => add(DeviceTemperatureRefreshRequested()),
+    );
+  }
+
+Future<void> _onTemperatureRefreshRequested(
+  DeviceTemperatureRefreshRequested event,
+  Emitter<DeviceState> emit,
+) async {
+
+  final devices =
+      Map<String, Device>.from(state.devices);
+
+  for (final entry in devices.entries) {
+
+    final device = entry.value;
+
+    final response =
+        await temperatureService.getTemperature(
+      device.ip,
+      device.port,
+    );
+
+    if (response != null) {
+
+      devices[entry.key] = device.copyWith(
+        currentTemperature: response.current,
+        targetTemperature: response.target,
+        heating: response.heating,
+      );
+    }
+  }
+
+  emit(state.copyWith(devices: devices));
+}
   void _onDeviceAnnounced(
     DeviceAnnounced event,
     Emitter<DeviceState> emit,
@@ -97,7 +144,10 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
   Future<void> close() {
     _subscription?.cancel();
     _healthTimer?.cancel();
+    _temperatureTimer?.cancel();
+
     discoveryService.stop();
+
     return super.close();
   }
 }

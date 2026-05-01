@@ -40,13 +40,41 @@ class DeviceListPage extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("IP: ${device.ip}:${device.port}"),
                       Text("ID: ${device.deviceId}"),
                       Text(
                         "Last seen: ${_formatDate(device.lastSeen)}",
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      if (device.currentTemperature != null)
+                        Text(
+                          "Current: "
+                          "${device.currentTemperature!.toStringAsFixed(1)} °C",
+                        ),
+
+                      if (device.targetTemperature != null)
+                        Text(
+                          "Target: "
+                          "${device.targetTemperature!.toStringAsFixed(1)} °C",
+                        ),
+
+                      const SizedBox(height: 6),
+
+                      if (device.heating != null)
+                        Chip(
+                        backgroundColor:
+                            device.heating!
+                                ? Colors.orange.shade200
+                                : Colors.grey.shade300,
+                        label: Text(
+                          device.heating!
+                              ? "Heating"
+                              : "Idle",
+                        ),
                       ),
                     ],
                   ),

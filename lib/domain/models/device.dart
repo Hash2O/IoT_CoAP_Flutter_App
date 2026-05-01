@@ -17,6 +17,9 @@ class Device {
   final DateTime lastSeen;
   final ConnectionStatus status;
   final int healthFailures; // Ajout compteur d'échecs
+  final double? currentTemperature;
+  final double? targetTemperature;
+  final bool? heating;
 
   Device({
     required this.deviceId,
@@ -26,6 +29,9 @@ class Device {
     required this.lastSeen,
     required this.status,
     required this.healthFailures,
+    required this.currentTemperature,
+    required this.targetTemperature,
+    required this.heating,
   });
 
   factory Device.fromAnnounce(Map<String, dynamic> json) {
@@ -36,7 +42,10 @@ class Device {
       port: json['port'] ?? 5683,
       lastSeen: DateTime.now(),
       status: ConnectionStatus.online,
-      healthFailures: 0,
+      healthFailures: 0, 
+      currentTemperature: null, 
+      targetTemperature: null, 
+      heating: null,
     );
   }
 
@@ -48,6 +57,9 @@ class Device {
     DateTime? lastSeen,
     ConnectionStatus? status,
     int? healthFailures,
+    double? currentTemperature,
+    double? targetTemperature,
+    bool? heating,
   }) {
     return Device(
       deviceId: deviceId ?? this.deviceId,
@@ -57,6 +69,9 @@ class Device {
       lastSeen: lastSeen ?? this.lastSeen,
       status: status ?? this.status,
       healthFailures: healthFailures ?? this.healthFailures,
+      currentTemperature: currentTemperature ?? this.currentTemperature,
+      targetTemperature: targetTemperature ?? this.targetTemperature,
+      heating: heating ?? this.heating,
     );
   }
 

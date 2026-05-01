@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/services/coap_temperature_service.dart';
 
+import '../../domain/models/temperature_data.dart';
+
 /*
 Objectifs du script amélioré : 
 - Un seul timer
@@ -24,41 +26,28 @@ class UpdateTemperatureRequested extends DeviceDetailEvent {
 
 /// STATE
 class DeviceDetailState {
-  final double? temperature;
+  final TemperatureData? temperatureData;
   final bool loading;
   final String? error;
-  final DateTime? lastUpdate;
 
   const DeviceDetailState({
-    this.temperature,
+    this.temperatureData,
     this.loading = false,
     this.error,
-    this.lastUpdate,
   });
 
   DeviceDetailState copyWith({
-  bool? loading,
-  String? error,
-  double? temperature,
-  DateTime? lastUpdate,
+    TemperatureData? temperatureData,
+    bool? loading,
+    String? error,
   }) {
     return DeviceDetailState(
+      temperatureData:
+          temperatureData ?? this.temperatureData,
       loading: loading ?? this.loading,
       error: error,
-      temperature: temperature ?? this.temperature,
-      lastUpdate: lastUpdate ?? this.lastUpdate,
     );
   }
-}
-
-class TemperatureResponse {
-  final double value;
-  final DateTime timestamp;
-
-  TemperatureResponse({
-    required this.value,
-    required this.timestamp,
-  });
 }
 
 /// BLOC
@@ -88,43 +77,55 @@ class DeviceDetailBloc
 
     emit(state.copyWith(loading: true, error: null));
 
-    final response = await service.getTemperature(ip, port);
+    final response =
+    await service.getTemperature(ip, port);
 
-    if (response == null) {
-      emit(state.copyWith(
-        loading: false,
-        error: "Unable to load temperature",
-      ));
-    } else {
-      emit(state.copyWith(
-        loading: false,
-        temperature: response.value,
-        lastUpdate: response.timestamp,
-      ));
-    }
+if (response == null) {
+  emit(state.copyWith(
+    loading: false,
+    error: "Unable to load temperature",
+  ));
+} else {
+  emit(state.copyWith(
+    loading: false,
+    temperatureData: response,
+  ));
+}
   }
 
   Future<void> _onUpdateTemperature(
-      UpdateTemperatureRequested event,
-      Emitter<DeviceDetailState> emit) async {
-    emit(state.copyWith(loading: true, error: null));
+  UpdateTemperatureRequested event,
+  Emitter<DeviceDetailState> emit,
+) async {
 
-    final response =
-    await service.setTemperature(ip, port, event.newValue);
+  emit(state.copyWith(
+    loading: true,
+    error: null,
+  ));
 
-    if (response == null) {
-      emit(state.copyWith(
-        loading: false,
-        error: "Update failed",
-      ));
-    } else {
-      emit(state.copyWith(
-        loading: false,
-        temperature: response.value,
-        lastUpdate: response.timestamp,
-      ));
-    }
+  final response =
+      await service.setTemperature(
+    ip,
+    port,
+    event.newValue,
+  );
+
+  if (response == null) {
+
+    emit(state.copyWith(
+      loading: false,
+      error: "Update failed",
+    ));
+
+  } else {
+
+    emit(state.copyWith(
+      loading: false,
+      temperatureData: response,
+    ));
+
   }
+}
 
   // Fermeture et libération des ressources
   @override

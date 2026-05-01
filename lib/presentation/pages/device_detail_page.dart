@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iot_coap_app/chaos_panel.dart';
+import 'package:iot_coap_app/domain/models/temperature_data.dart';
 
 import '../../data/services/coap_temperature_service.dart';
 import '../bloc/device_detail_bloc.dart';
@@ -28,8 +29,7 @@ class DeviceDetailPage extends StatelessWidget {
         body: BlocBuilder<DeviceDetailBloc, DeviceDetailState>(
           builder: (context, state) {
             return _TemperatureView(
-              temperature: state.temperature,
-              lastUpdate: state.lastUpdate,
+              temperatureData: state.temperatureData,
               ip: ip,
               port: port,
               loading: state.loading,
@@ -43,20 +43,18 @@ class DeviceDetailPage extends StatelessWidget {
 }
 
 class _TemperatureView extends StatefulWidget {
-  final double? temperature;
+  final TemperatureData? temperatureData;
   final String ip;
   final int port;
   final bool loading;
   final String? error;
-  final DateTime? lastUpdate;
 
   const _TemperatureView({
-    required this.temperature,
+    required this.temperatureData,
     required this.ip,
     required this.port,
     required this.loading,
     required this.error,
-    required this.lastUpdate,
   });
 
   @override
@@ -69,16 +67,22 @@ class _TemperatureViewState extends State<_TemperatureView> {
   @override
   void initState() {
     super.initState();
-    _currentValue = widget.temperature ?? 22.0;
+    _currentValue =
+    widget.temperatureData?.target ?? 22.0;
   }
 
   @override
   void didUpdateWidget(covariant _TemperatureView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.temperature != null) {
-      _currentValue = widget.temperature!;
-    }
+if (widget.temperatureData != null) {
+  if (widget.temperatureData != null &&
+    oldWidget.temperatureData?.target !=
+        widget.temperatureData?.target) {
+      _currentValue =
+        widget.temperatureData!.target;
+    }  
+  }
   }
 
   @override
@@ -95,22 +99,44 @@ class _TemperatureViewState extends State<_TemperatureView> {
         style: const TextStyle(color: Colors.red),
       );
     } 
-    else if (widget.temperature != null) {
+    else if (widget.temperatureData != null) {
       content = Column(
         children: [
           Text(
-            "${_currentValue.toStringAsFixed(1)} °C",
+            "${widget.temperatureData!.current.toStringAsFixed(1)} °C",
             style: const TextStyle(
-              fontSize: 36,
+              fontSize: 42,
               fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            "Target : "
+            "${widget.temperatureData!.target.toStringAsFixed(1)} °C",
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 10),
 
+          Chip(
+            backgroundColor:
+                widget.temperatureData!.heating
+                    ? Colors.orange.shade200
+                    : Colors.blueGrey.shade200,
+            label: Text(
+              widget.temperatureData!.heating
+                  ? "Heating"
+                  : "Idle",
+            ),
+          ),
           const SizedBox(height: 8),
 
-          if (widget.lastUpdate != null)
-            Text(
-              "Updated at: ${_formatTime(widget.lastUpdate!)}",
+             Text(
+              "Updated at: ${_formatTime(
+                widget.temperatureData!.timestamp,
+              )}",
               style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -120,6 +146,7 @@ class _TemperatureViewState extends State<_TemperatureView> {
           const SizedBox(height: 30),
 
           Slider(
+            label: "${_currentValue.toStringAsFixed(1)} °C",
             value: _currentValue,
             min: 10,
             max: 35,
@@ -176,6 +203,6 @@ class _TemperatureViewState extends State<_TemperatureView> {
   return "${date.hour.toString().padLeft(2, '0')}:"
          "${date.minute.toString().padLeft(2, '0')}:"
          "${date.second.toString().padLeft(2, '0')}";
-}
+  }
 
 }
