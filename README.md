@@ -33,7 +33,10 @@ samples, guidance on mobile development, and a full API reference.
     lib/
     │
     ├── data/
+    │   ├── mock/
+    │   │   └── mock_users.dart
     │   └── services/
+    │       ├── auth_service.dart
     │       ├── coap_chaos_service.dart
     │       ├── coap_health_service.dart
     │       ├── coap_temperature_service.dart
@@ -41,16 +44,23 @@ samples, guidance on mobile development, and a full API reference.
     │
     ├── domain/
     │   └── models/
-    │       └── device.dart
+    │       ├── device.dart
+    │       └── user.dart
     │
     ├── presentation/
     │   ├── bloc/
     │   │   ├── device_bloc.dart
     │   │   ├── device_detail_bloc.dart
     │   │   ├── device_event.dart
-    │   │   └── device_state.dart
-    │   │
+    │   │   ├── device_state.dart
+    │   │   └── auth_bloc.dart
     │   └── pages/
+    │       ├── login_page.dart
+    │       ├── home_page.dart
+    │       ├── device_list_page.dart
+    │       ├── pairing_page.dart
+    │       ├── profile_page.dart
+    │       ├── main_navigation_page.dart
     │       ├── device_detail_page.dart
     │       └── device_list_page.dart
     │
@@ -158,3 +168,14 @@ samples, guidance on mobile development, and a full API reference.
         - Reste fonctionnelle même en mode offline
         - Se rétablit automatiquement lorsque le réseau revient
     De plus, un timer d’auto-refresh permet de resynchroniser l’état.
+
+## Architecture Navigation 
+###    4 sections
+        Onglet	    Rôle
+        Home	    Dashboard global
+        Devices	    Liste détaillée des radiateurs
+        Pairing	    Appairage / discovery
+        Profile	    Paramètres utilisateur
+
+### Fonctionnement barre navigation
+login_page.dart -> MainNavigationPage -> BottomNavigationBar -> Pages

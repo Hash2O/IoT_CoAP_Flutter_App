@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:coap/coap.dart';
-import 'package:iot_coap_app/presentation/bloc/device_detail_bloc.dart';
 import '../../domain/models/temperature_data.dart';
 
 class CoapTemperatureService {
