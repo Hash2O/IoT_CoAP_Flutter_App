@@ -7,6 +7,7 @@ const mockUsers = [
     username: "admin",
     password: "admin123",
     displayName: "Administrator",
+    role: "admin",
   ),
 
   User(
@@ -14,6 +15,7 @@ const mockUsers = [
     username: "alice",
     password: "alice123",
     displayName: "Alice",
+    role: "user",
   ),
 
   User(
@@ -21,5 +23,6 @@ const mockUsers = [
     username: "bob",
     password: "bob123",
     displayName: "Bob",
+    role: "user",
   ),
 ];
